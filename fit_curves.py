@@ -52,7 +52,8 @@ for file in os.listdir(source_folder):
     C = params[2] - 20
 
     x_of_20 = (-B + np.sqrt(B**2 - 4 * A * C)) / (2 * A)
-    print(file, x_of_20, row_60_degrees)
+    # print(x_of_20, row_60_degrees)
+    print((row_60_degrees - x_of_20) * 0.12)
 
     i += 1
 
