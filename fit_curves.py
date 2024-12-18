@@ -8,23 +8,26 @@ source_folder = f"D:/7.27.22/ondrive/LAB/StemConduction/newraw/"
 
 i = 1   # this is just for logging during development
 
+def fix_timestamps(stamp):
+    if '.' in stamp:
+        return stamp
+    else:
+        stamp += '.00'
+        return stamp
+    
+def poly_func(x, a, b, c):
+    return a * x**2 + b * x + c
+
 for file in os.listdir(source_folder):
 
     df = pd.read_csv(os.path.join(source_folder, file), header=1, skiprows=[2, 3])
-
-    def fix_timestamps(stamp):
-        if '.' in stamp:
-            return stamp
-        else:
-            stamp += '.00'
-            return stamp
 
     raw_timestamps = df["TIMESTAMP"]
     timestamps = pd.to_datetime(raw_timestamps.apply(fix_timestamps))    
     records = df["RECORD"]
     temperatures = df["Temp_C_1"]
 
-    if file == "pintae0701a.csv":          # this file has a two-second run of NAN readings
+    if file == "pintae0701a.csv":          # this particular file has a two-second run of NAN readings
         rows_to_drop = list(range(1025, 1044))
         temperatures = temperatures.drop(rows_to_drop)
         records = records.drop(rows_to_drop)
@@ -34,8 +37,8 @@ for file in os.listdir(source_folder):
 
     y_data = temperatures.iloc[361:]
 
-    def poly_func(x, a, b, c):
-        return a * x**2 + b * x + c
+    # find the row where the temperature hits 60 degrees
+    row_60_degrees = y_data.loc[pd.to_numeric(y_data) >= 60].first_valid_index()
 
     params, params_covariance = curve_fit(poly_func, x_data, y_data)
 
@@ -49,10 +52,11 @@ for file in os.listdir(source_folder):
     C = params[2] - 20
 
     x_of_20 = (-B + np.sqrt(B**2 - 4 * A * C)) / (2 * A)
-    print(i, x_of_20)
+    print(file, x_of_20, row_60_degrees)
 
     i += 1
 
+    ## uncomment to see a visualization of the curve fit
     # plt.plot(x_data, y_data, label="Data", color='red')
     # plt.plot(x_fit, y_fit, label='fitted polynomial curve')
     # plt.scatter(x_of_20, 20)
