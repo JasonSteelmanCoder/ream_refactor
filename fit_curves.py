@@ -1,50 +1,57 @@
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
-from scipy.special import expit
 import pandas as pd
-from datetime import datetime
+import os
 
-df = pd.read_csv(f"D:/7.27.22/ondrive/LAB/StemConduction/newraw/liqsty15010a.csv", header=1, skiprows=[2, 3])
+source_folder = f"D:/7.27.22/ondrive/LAB/StemConduction/newraw/"
 
-def fix_timestamps(stamp):
-    if '.' in stamp:
-        return stamp
-    else:
-        stamp += '.00'
-        return stamp
+i = 1   # this is just for logging during development
 
-raw_timestamps = df["TIMESTAMP"]
-timestamps = pd.to_datetime(raw_timestamps.apply(fix_timestamps))    
-records = df["RECORD"]
-temperatures = df["Temp_C_1"]
+for file in os.listdir(source_folder):
 
-x_data = records.iloc[361:]
+    df = pd.read_csv(os.path.join(source_folder, file), header=1, skiprows=[2, 3])
 
-y_data = temperatures.iloc[361:]
+    def fix_timestamps(stamp):
+        if '.' in stamp:
+            return stamp
+        else:
+            stamp += '.00'
+            return stamp
 
-def poly_func(x, a, b, c):
-    return a * x**2 + b * x + c
+    raw_timestamps = df["TIMESTAMP"]
+    timestamps = pd.to_datetime(raw_timestamps.apply(fix_timestamps))    
+    records = df["RECORD"]
+    temperatures = df["Temp_C_1"]
 
-params, params_covariance = curve_fit(poly_func, x_data, y_data)
+    x_data = records.iloc[361:]
 
-print(params)
+    y_data = temperatures.iloc[361:]
 
-x_fit = np.linspace(0, max(x_data), 100)
-y_fit = poly_func(x_fit, params[0], params[1], params[2])
+    def poly_func(x, a, b, c):
+        return a * x**2 + b * x + c
 
-A = params[0]
-B = params[1]
-C = params[2] - 20
+    params, params_covariance = curve_fit(poly_func, x_data, y_data)
 
-x_of_20 = (-B + np.sqrt(B**2 - 4 * A * C)) / (2 * A)
-print(x_of_20)
+    # print(params)
 
-plt.plot(x_data, y_data, label="Data", color='red')
-plt.plot(x_fit, y_fit, label='fitted polynomial curve')
-plt.scatter(x_of_20, 20)
-plt.xlabel('sample')
-plt.ylabel('temperature')
-plt.legend()
-plt.show()
+    x_fit = np.linspace(0, max(x_data), 100)
+    y_fit = poly_func(x_fit, params[0], params[1], params[2])
+
+    A = params[0]
+    B = params[1]
+    C = params[2] - 20
+
+    x_of_20 = (-B + np.sqrt(B**2 - 4 * A * C)) / (2 * A)
+    print(i, x_of_20)
+
+    i += 1
+
+    # plt.plot(x_data, y_data, label="Data", color='red')
+    # plt.plot(x_fit, y_fit, label='fitted polynomial curve')
+    # plt.scatter(x_of_20, 20)
+    # plt.xlabel('sample')
+    # plt.ylabel('temperature')
+    # plt.legend()
+    # plt.show()
 
