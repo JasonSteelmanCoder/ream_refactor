@@ -24,6 +24,12 @@ for file in os.listdir(source_folder):
     records = df["RECORD"]
     temperatures = df["Temp_C_1"]
 
+    if file == "pintae0701a.csv":          # this file has a two-second run of NAN readings
+        rows_to_drop = list(range(1025, 1044))
+        temperatures = temperatures.drop(rows_to_drop)
+        records = records.drop(rows_to_drop)
+        timestamps = timestamps.drop(rows_to_drop)
+
     x_data = records.iloc[361:]
 
     y_data = temperatures.iloc[361:]
