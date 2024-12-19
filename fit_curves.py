@@ -60,7 +60,7 @@ for file in os.listdir(source_folder):
     if file == "pintae0701a.csv":             # since this file has a two second run of NAN readings, the time has to be added back to the duration.
         duration += (19 * 0.12)
     # print(duration)
-    new_row = {"file": file, "duration": duration}
+    new_row = {"file": file, "duration": int(duration)}
     output.loc[len(output)] = new_row
 
     i += 1
