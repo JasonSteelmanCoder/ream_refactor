@@ -5,6 +5,7 @@ import pandas as pd
 import os
 
 source_folder = f"D:/7.27.22/ondrive/LAB/StemConduction/newraw/"
+output_file = f"C:/Users/{os.getenv("MS_USER_NAME")}/Desktop/Ream/durations.csv"
 
 i = 1   # this is just for logging during development
 
@@ -17,6 +18,8 @@ def fix_timestamps(stamp):
     
 def poly_func(x, a, b, c):
     return a * x**2 + b * x + c
+
+output = pd.DataFrame(columns=["file", "duration"])
 
 for file in os.listdir(source_folder):
 
@@ -52,8 +55,13 @@ for file in os.listdir(source_folder):
     C = params[2] - 20
 
     x_of_20 = (-B + np.sqrt(B**2 - 4 * A * C)) / (2 * A)
-    print(file, x_of_20, row_60_degrees)
-    # print((row_60_degrees - x_of_20) * 0.12)
+    # print(file, x_of_20, row_60_degrees)
+    duration = (row_60_degrees - x_of_20) * 0.12
+    if file == "pintae0701a.csv":             # since this file has a two second run of NAN readings, the time has to be added back to the duration.
+        duration += (19 * 0.12)
+    # print(duration)
+    new_row = {"file": file, "duration": duration}
+    output.loc[len(output)] = new_row
 
     i += 1
 
@@ -66,3 +74,4 @@ for file in os.listdir(source_folder):
     # plt.legend()
     # plt.show()
 
+output.to_csv(output_file, index=False)
