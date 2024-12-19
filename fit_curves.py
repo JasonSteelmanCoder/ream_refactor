@@ -23,7 +23,7 @@ for file in os.listdir(source_folder):
     df = pd.read_csv(os.path.join(source_folder, file), header=1, skiprows=[2, 3])
 
     raw_timestamps = df["TIMESTAMP"]
-    timestamps = pd.to_datetime(raw_timestamps.apply(fix_timestamps))    
+    timestamps = pd.to_datetime(raw_timestamps.apply(fix_timestamps), format='%Y-%m-%d %H:%M:%S.%f')    
     records = df["RECORD"]
     temperatures = df["Temp_C_1"]
 
@@ -52,8 +52,8 @@ for file in os.listdir(source_folder):
     C = params[2] - 20
 
     x_of_20 = (-B + np.sqrt(B**2 - 4 * A * C)) / (2 * A)
-    # print(x_of_20, row_60_degrees)
-    print((row_60_degrees - x_of_20) * 0.12)
+    print(file, x_of_20, row_60_degrees)
+    # print((row_60_degrees - x_of_20) * 0.12)
 
     i += 1
 
